@@ -1,6 +1,6 @@
 # trigger-notifications
 
-This project contains a Go application designed to be deployed as an AWS Lambda function. The function exposes an HTTP endpoint that can be used to trigger an update to an ECS service.
+This project contains a Go application designed to be deployed as an AWS Lambda function. The function exposes an HTTP endpoint.
 
 ## Getting Started
 
