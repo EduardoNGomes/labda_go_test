@@ -49,17 +49,20 @@ jobs:
           image-uri: ${{ steps.build-image.outputs.image }}
           role: arn:aws:iam::992382606831:role/service-role/first-lambda-role-vdib1iz6
 
-      - name: Create or update Lambda Function URL (public)
+      - name: Create Function URL
         run: |
-          set +e
           aws lambda create-function-url-config \
             --function-name lambda-do-edu \
-            --auth-type NONE \
-            --cors "{\"AllowOrigins\":[\"*\"],\"AllowMethods\":[\"GET\",\"POST\",\"OPTIONS\"],\"AllowHeaders\":[\"*\"]}"
-          aws lambda update-function-url-config \
+            --auth-type NONE || true
+
+      - name: Allow public access to Lambda Function URL
+        run: |
+          aws lambda add-permission \
             --function-name lambda-do-edu \
-            --auth-type NONE \
-            --cors "{\"AllowOrigins\":[\"*\"],\"AllowMethods\":[\"GET\",\"POST\",\"OPTIONS\"],\"AllowHeaders\":[\"*\"]}"
+            --statement-id FunctionURLAllowPublicAccess \
+            --action lambda:InvokeFunctionUrl \
+            --principal "*" \
+            --function-url-auth-type NONE || true
 
       - name: Get Function URL
         run: |

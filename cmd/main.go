@@ -25,7 +25,7 @@ type Body struct {
 
 func router(ctx context.Context, event events.LambdaFunctionURLRequest) (events.LambdaFunctionURLResponse, error) {
 
-	authorization := event.Headers["Authorization"]
+	authorization := event.Headers["authorization"]
 
 	payload := strings.TrimPrefix(authorization, "Basic ")
 
