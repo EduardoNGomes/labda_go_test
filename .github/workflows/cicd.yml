@@ -47,7 +47,7 @@ jobs:
           function-name: lambda-do-edu
           package-type: Image
           image-uri: ${{ steps.build-image.outputs.image }}
-          role: ${{secretes.LAMBDA_ROLE}}
+          role: ${{secrets.LAMBDA_ROLE}}
 
       - name: Create Function URL
         run: |
