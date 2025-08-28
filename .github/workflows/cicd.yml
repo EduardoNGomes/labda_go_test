@@ -54,9 +54,13 @@ jobs:
           aws lambda create-function-url-config \
             --function-name lambda-do-edu \
             --auth-type NONE \
-            --cors '{"AllowOrigins": ["*"], "AllowMethods": ["GET","POST","OPTIONS"]}' \
+            --cors AllowOrigins="*",AllowMethods="GET,POST,OPTIONS" 2>/dev/null \
             || \
           aws lambda update-function-url-config \
             --function-name lambda-do-edu \
             --auth-type NONE \
-            --cors '{"AllowOrigins": ["*"], "AllowMethods": ["GET","POST","OPTIONS"]}'
+            --cors AllowOrigins="*",AllowMethods="GET,POST,OPTIONS"
+
+      - name: Get Function URL
+        run: |
+          aws lambda get-function-url-config --function-name lambda-do-edu
