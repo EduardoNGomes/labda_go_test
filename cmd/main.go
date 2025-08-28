@@ -27,6 +27,9 @@ func router(ctx context.Context, event events.LambdaFunctionURLRequest) (events.
 
 	authorization := event.Headers["Authorization"]
 
+	if authorization == "" {
+		authorization = event.Headers["authorization"]
+	}
 	payload := strings.TrimPrefix(authorization, "Basic ")
 
 	decoded, err := base64.StdEncoding.DecodeString(payload)
