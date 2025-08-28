@@ -1,0 +1,62 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Deploy Lambda function with container image
+        uses: aws-actions/aws-lambda-deploy@v1.1.0
+        with:
+          function-name: lambda-do-edu
+          package-type: Image
+          image-uri: ${{ steps.build-image.outputs.image }}
+          role: arn:aws:iam::123456789012:role/lambda-role # IAM execution role for Lambda
+
+      - name: Create or update Lambda Function URL (public)
+        run: |
+          aws lambda create-function-url-config \
+            --function-name lambda-do-edu \
+            --auth-type NONE \
+            --cors '{"AllowOrigins": ["*"], "AllowMethods": ["GET","POST","OPTIONS"]}' \
+            || \
+          aws lambda update-function-url-config \
+            --function-name lambda-do-edu \
+            --auth-type NONE \
+            --cors '{"AllowOrigins": ["*"], "AllowMethods": ["GET","POST","OPTIONS"]}'
