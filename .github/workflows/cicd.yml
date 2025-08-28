@@ -51,11 +51,11 @@ jobs:
 
       - name: Create or update Lambda Function URL (public)
         run: |
+          set +e
           aws lambda create-function-url-config \
             --function-name lambda-do-edu \
             --auth-type NONE \
-            --cors "{\"AllowOrigins\":[\"*\"],\"AllowMethods\":[\"GET\",\"POST\",\"OPTIONS\"],\"AllowHeaders\":[\"*\"]}" \
-          || \
+            --cors "{\"AllowOrigins\":[\"*\"],\"AllowMethods\":[\"GET\",\"POST\",\"OPTIONS\"],\"AllowHeaders\":[\"*\"]}"
           aws lambda update-function-url-config \
             --function-name lambda-do-edu \
             --auth-type NONE \
