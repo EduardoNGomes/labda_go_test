@@ -15,6 +15,15 @@ jobs:
     environment: production
 
     steps:
+      - name: Check AWS_ROLE secret
+        run: |
+          if [ -z "${{ secrets.AWS_ROLE }}" ]; then
+            echo "AWS_ROLE secret is missing!"
+            exit 1
+          else
+            echo "AWS_ROLE secret is set."
+          fi
+
       - name: Checkout
         uses: actions/checkout@v5
 
